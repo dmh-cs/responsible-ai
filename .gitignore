@@ -1,0 +1,4 @@
+/compas-scores-two-years.csv
+/.ipynb_checkpoints
+/__pycache__/
+*.pyc
