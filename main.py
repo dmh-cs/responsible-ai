@@ -6,12 +6,10 @@ import pandas as pd
 from sklearn import metrics
 from sklearn import ensemble
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
 
 from explainer_model import train, inquire
-
-def get_label(explainer, feature, value):
-  return list(explainer.categorical_names[explainer.feature_names.index(feature)]).index(value)
+from util import get_label, encode_data
 
 def filter_data(data):
   column_names = ['age', 'c_charge_degree', 'race', 'age_cat', 'score_text', 'sex', 'priors_count', 'days_b_screening_arrest', 'decile_score', 'is_recid', 'two_year_recid', 'c_jail_in', 'c_jail_out']
@@ -21,18 +19,6 @@ def filter_data(data):
   data = data[data['c_charge_degree'] != 'O']
   data = data[data['score_text'] != 'N/A']
   return data[column_names]
-
-def encode_data(data, features, categorical_features):
-  categorical_names = {}
-  encoded_data = {}
-  for i, feature_name in enumerate(features):
-    if feature_name in categorical_features:
-      label_encoder = LabelEncoder()
-      encoded_data[feature_name] = label_encoder.fit_transform(data[feature_name])
-      categorical_names[i] = label_encoder.classes_
-    else:
-      encoded_data[feature_name] = data[feature_name]
-  return pd.DataFrame(encoded_data, columns=features), categorical_names
 
 def main():
   printer = pprint.PrettyPrinter(indent=2)
