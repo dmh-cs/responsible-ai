@@ -20,40 +20,88 @@ def filter_data(data):
   data = data[data['score_text'] != 'N/A']
   return data[column_names]
 
+class Ranker(object):
+  def __init__(self, model):
+    self.model = model
+    self.one_hot_encoder             = None
+    self.encoded_data                = None
+    self.categorical_names           = None
+    self.target                      = None
+    self.predict_proba_fn            = None
+    self.predictions                 = None
+    self.X_train                     = None
+    self.X_test                      = None
+    self.y_train                     = None
+    self.y_test                      = None
+    self.features                    = None
+    self.categorical_feature_indices = None
+    self.explainer                   = None
+
+  def _build_dataset_for_user(self, restaurants_info, user_info):
+    pass
+
+  def rank_restaurants_for_user(self, restaurants_info, user_info):
+    user_dataset = self._build_dataset_for_user(restaurants_info, user_info)
+    return self.model.predict_proba(user_dataset)
+
+  def prepare_data(self, path='./compas-scores-two-years.csv'):
+    raw_data = pd.read_csv(path)
+    filtered_data = filter_data(raw_data)
+    keep_features = ['priors_count', 'sex', 'age_cat', 'race', 'c_charge_degree']
+    data = filtered_data[keep_features].rename(columns={'priors_count': 'num_priors',
+                                                        'age_cat': 'age_range',
+                                                        'c_charge_degree': 'charge_degree'})
+    data['num_priors'] = data['num_priors'].astype(np.float32)
+    self.features = ['sex', 'age_range', 'race', 'charge_degree', 'num_priors']
+    categorical_features = ['sex', 'age_range', 'race', 'charge_degree']
+    categorical_feature_indices = [self.features.index(feature_name) for feature_name in categorical_features]
+    self.encoded_data, self.categorical_names = encode_data(data,
+                                                            self.features,
+                                                            categorical_features)
+    self.target = filtered_data['is_recid']
+    self.one_hot_encoder = OneHotEncoder(categorical_features=categorical_feature_indices)
+    self.one_hot_encoder.fit(self.encoded_data)
+
+  def train(self):
+    self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.encoded_data,
+                                                                            self.target)
+    self.model.fit(self.one_hot_encoder.transform(self.X_train),
+                   self.y_train)
+    self.predict_proba_fn = lambda samples: self.model.predict_proba(self.one_hot_encoder.transform(samples))
+
+  def predict(self, X_test=None):
+    X_test = X_test or self.X_test # use precomputed test set (created when self.train is called)
+    self.predictions = np.argmax(self.predict_proba_fn(X_test), axis=1)
+    return self.predictions
+
+  def print_prediction_results(self, predictions=None):
+    predictions = None or self.predictions
+    cm = metrics.classification.confusion_matrix(self.y_test,
+                                                 predictions)
+    print(cm)
+    print(metrics.classification_report(self.y_test, predictions))
+    print(metrics.accuracy_score(self.y_test, predictions))
+
+  def explain_prediction(self, row_to_explain, **kwargs):
+    if self.explainer is None:
+      self.explainer = train({'X_train': self.X_train.values, 'y_train': self.y_train.values},
+                             {'feature_names': self.features,
+                              'categorical_feature_indices': self.categorical_feature_indices,
+                              'categorical_names': self.categorical_names})
+    args = {'instance': row_to_explain,
+            'predict_fn': self.predict_proba_fn}
+    args.update(kwargs)
+    return inquire(self.explainer, args)
+
 def main():
   printer = pprint.PrettyPrinter(indent=2)
-  raw_data = pd.read_csv('./compas-scores-two-years.csv')
-  filtered_data = filter_data(raw_data)
-  keep_features = ['priors_count', 'sex', 'age_cat', 'race', 'c_charge_degree']
-  data = filtered_data[keep_features].rename(columns={'priors_count': 'num_priors',
-                                                      'age_cat': 'age_range',
-                                                      'c_charge_degree': 'charge_degree'})
-  data['num_priors'] = data['num_priors'].astype(np.float32)
-  features = ['sex', 'age_range', 'race', 'charge_degree', 'num_priors']
-  categorical_features = ['sex', 'age_range', 'race', 'charge_degree']
-  categorical_feature_indices = [features.index(feature_name) for feature_name in categorical_features]
-  encoded_data, categorical_names = encode_data(data, features, categorical_features)
-  X = encoded_data
-  y = filtered_data['is_recid']
-  one_hot_encoder = OneHotEncoder(categorical_features=categorical_feature_indices)
-  one_hot_encoder.fit(X)
-  X_train, X_test, y_train, y_test = train_test_split(X, y)
   model = ensemble.RandomForestClassifier()
-  model.fit(one_hot_encoder.transform(X_train), y_train)
-  predict_fn = lambda samples: model.predict_proba(one_hot_encoder.transform(samples))
-  predictions = model.predict(one_hot_encoder.transform(X_test))
-  cm = metrics.classification.confusion_matrix(y_test, predictions)
-  print(cm)
-  print(metrics.classification_report(y_test, predictions))
-  print(metrics.accuracy_score(y_test, predictions))
-  explainer = train({'X_train': X_train.values, 'y_train': y_train.values},
-                    {'feature_names': features,
-                     'categorical_feature_indices': categorical_feature_indices,
-                     'categorical_names': categorical_names})
-  explanation = inquire(explainer,
-                        {'instance': X_test.iloc[0],
-                         'predict_fn': predict_fn,
-                         'num_features': 2})
+  ranker = Ranker(model)
+  ranker.prepare_data(path='./compas-scores-two-years.csv')
+  ranker.train()
+  ranker.predict()
+  ranker.print_prediction_results()
+  explanation = ranker.explain_prediction(ranker.X_test.iloc[0], num_features=2)
   printer.pprint(explanation.as_list())
 
 
