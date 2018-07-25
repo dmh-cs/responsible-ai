@@ -1,9 +1,8 @@
 body {
   font-family: 'Sunflower', sans-serif;
   /* background: #27CFC3 */
-  background: #5998a2;
-
-  
+  /* background: #5998a2; */
+  background: rgb(220,220,220);
 }
 
 .title {
@@ -30,12 +29,12 @@ h1 {
 
 .content {
   margin: 40px auto;
-  width: 600px;
-  height: 500px;
+  width: 1000px;
+  height: 600px;
   /* position: absolute; */
   /* top: 50%; */
   /* left: 50%; */
-  background: rgba(255,255,255, 0.30);
+  background: rgba(255,255,255, 0.7);
   border-radius: 5px;
   box-shadow: 0px 0px 10px 0px rgba(0,0,0, 0.30);
   border-color: black;
@@ -52,6 +51,45 @@ h1 {
   color: white;
 }
 
-.holder {
+.page {
+  width: 100%;
+  overflow: auto;
+}
 
+.article {
+  float:left;
+  width: 50%;
+  height: 400px;
+  padding: 40px
+             /* width: 600px; */
+             /* display: inline-block; */
+}
+
+.ad {
+  float:right;
+  border-left: 1px solid black;
+  height: 600px;
+  width: 50%;
+
+  /* display: inline-block; */
+}
+
+.resto {
+  width: 250px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+}
+
+
+.rec-name{
+  text-align: center;
+  font-size: 16pt;
+  padding-top: 10px;
+  font-weight: bold;
+}
+
+.info {
+  list-style-type: none;
 }
