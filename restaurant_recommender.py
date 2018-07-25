@@ -14,8 +14,14 @@ class ResaurantRecommender(Ranker):
     super().__init__(model)
     self.data = None
 
-  def _build_dataset_for_user(self, restaurants_info, user_info):
-    pass
+  def build_dataset_for_user(self, user_id):
+    user_columns = ['userID', 'cuisine_id_y','smoker','drink_level','dress_preference','ambiance','transport','marital_status', 'hijos','interest','personality','religion','activity','color','budget', 'Upayment', 'height', 'weight', 'birth_year']
+    user_restaurant_data = self.data_with_ids.drop_duplicates('placeID').to_dict('list')
+    user_info = self.data_with_ids[self.data_with_ids['userID'] == user_id].iloc[0].to_dict()
+    for column in user_columns:
+      for i in range(len(user_restaurant_data[column])):
+        user_restaurant_data[column][i] = user_info[column]
+    return pd.DataFrame(user_restaurant_data, columns=self.features + ['userID', 'placeID'])
 
   def prepare_data(self):
     # Restaurant Features
@@ -91,6 +97,7 @@ class ResaurantRecommender(Ranker):
     merged = pd.merge(merged,interaction_user,on='userID',how='left')
     merged = merged.drop_duplicates(keep='first',subset=['placeID','userID'])
     merged = merged.rename(columns={'ambience': 'ambiance'})
+    self.data = merged
     self.features = ['Rambiance', 'Upayment', 'accessibility', 'activity', 'alcohol', 'ambiance', 'birth_year', 'budget', 'color', 'cuisine_id_x', 'cuisine_id_y', 'dress_code', 'dress_preference', 'drink_level', 'franchise', 'height', 'hijos', 'interest', 'late_hours', 'marital_status', 'parking_lot', 'personality', 'religion', 'smoker', 'smoking_area', 'transport', 'weight', 'Rpayment']
     categorical_features = restaurant_cat_colums + user_cat_columns
     self.categorical_feature_indices = [self.features.index(feature_name) for feature_name in categorical_features]
@@ -100,9 +107,13 @@ class ResaurantRecommender(Ranker):
     self.target = merged['rating'] > 1
     self.one_hot_encoder = OneHotEncoder(categorical_features=self.categorical_feature_indices)
     self.one_hot_encoder.fit(self.encoded_data)
+    self.data_with_ids = self.encoded_data.copy()
+    self.data_with_ids['userID'] = merged['userID']
+    self.data_with_ids['placeID'] = merged['placeID']
 
 
-  def rank_restaurants_for_user(self, restaurants_info, user_info):
-    user_dataset = self._build_dataset_for_user(restaurants_info, user_info)
-    return self.model.predict_proba(user_dataset)
-
+  def rank_restaurants_for_user(self, user_dataset):
+    without_ids = user_dataset.loc[:, (user_dataset.columns != 'userID') & (user_dataset.columns != 'placeID')]
+    probas = np.squeeze(self.predict_proba_fn(without_ids).T)[0]
+    indexes = np.argsort(probas)
+    return user_dataset['placeID'].values[indexes], indexes
