@@ -1,3 +1,4 @@
+import pprint
 import re
 from functools import reduce
 
@@ -13,6 +14,7 @@ class ResaurantRecommender(Ranker):
   def __init__(self, model):
     super().__init__(model)
     self.data = None
+    self.printer = pprint.PrettyPrinter(indent=2)
 
   def build_dataset_for_user(self, user_id):
     user_columns = ['userID', 'cuisine_id_y','smoker','drink_level','dress_preference','ambiance','transport','marital_status', 'hijos','interest','personality','religion','activity','color','budget', 'Upayment', 'height', 'weight', 'birth_year']
@@ -24,6 +26,7 @@ class ResaurantRecommender(Ranker):
     return pd.DataFrame(user_restaurant_data, columns=self.features + ['userID', 'placeID'])
 
   def prepare_data(self):
+    self.restaurants = pd.read_csv('data/geoplaces2.csv',index_col='placeID')
     # Restaurant Features
     df_res_accept = pd.read_csv('data/chefmozaccepts.csv',index_col='placeID')
     df_res_cuisine = pd.read_csv('data/chefmozcuisine.csv',index_col='placeID')
@@ -111,9 +114,38 @@ class ResaurantRecommender(Ranker):
     self.data_with_ids['userID'] = merged['userID']
     self.data_with_ids['placeID'] = merged['placeID']
 
-
   def rank_restaurants_for_user(self, user_dataset):
     without_ids = user_dataset.loc[:, (user_dataset.columns != 'userID') & (user_dataset.columns != 'placeID')]
     probas = np.squeeze(self.predict_proba_fn(without_ids).T)[0]
     indexes = np.argsort(probas)
     return user_dataset['placeID'].values[indexes], indexes
+
+  def print_recs(self, user_id, num_recs):
+    user_dataset = self.build_dataset_for_user(user_id)
+    without_ids = user_dataset.loc[:, (user_dataset.columns != 'userID') & (user_dataset.columns != 'placeID')]
+    recommendations, recommended_indexes = self.rank_restaurants_for_user(user_dataset)
+    for place_id, row in zip(recommendations[:num_recs],
+                             without_ids.values[recommended_indexes][:num_recs]):
+      explanation = self.explain_prediction(row, num_features=10)
+      print(place_id)
+      print(self.restaurants.loc[place_id]['name'])
+      self.printer.pprint(explanation.as_list())
+
+  def print_rec_not_using_features(self, user_id, unwanted_features):
+    user_dataset = self.build_dataset_for_user(user_id)
+    without_ids = user_dataset.loc[:, (user_dataset.columns != 'userID') & (user_dataset.columns != 'placeID')]
+    recommendations, recommended_indexes = self.rank_restaurants_for_user(user_dataset)
+    for place_id, row in zip(recommendations,
+                             without_ids.values[recommended_indexes]):
+      explanation = self.explain_prediction(row, num_features=10)
+      explained_list = explanation.as_list()
+      used_features_string = ' '.join(list(map(lambda pair: pair[0], explained_list)))
+      if reduce(lambda acc, feature: acc or feature in used_features_string,
+                unwanted_features,
+                False):
+        continue
+      else:
+        print(place_id)
+        print(self.restaurants.loc[place_id]['name'])
+        self.printer.pprint(explained_list)
+        return

@@ -30,12 +30,12 @@ class Ranker(object):
     self.predict_proba_fn = lambda samples: self.model.predict_proba(self.one_hot_encoder.transform(samples))
 
   def predict(self, X_test=None):
-    X_test = X_test or self.X_test # use precomputed test set (created when self.train is called)
+    X_test = self.X_test if X_test is None else X_test # use precomputed test set (created when self.train is called)
     self.predictions = np.argmax(self.predict_proba_fn(X_test), axis=1)
     return self.predictions
 
   def print_prediction_results(self, predictions=None):
-    predictions = None or self.predictions
+    predictions = self.predictions if predictions is None else predictions
     cm = metrics.classification.confusion_matrix(self.y_test,
                                                  predictions)
     print(cm)
