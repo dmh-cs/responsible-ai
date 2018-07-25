@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 from sklearn.preprocessing import LabelEncoder
 from sklearn import metrics
@@ -17,6 +18,18 @@ def encode_data(data, features, categorical_features):
     else:
       encoded_data[feature_name] = data[feature_name]
   return pd.DataFrame(encoded_data, columns=features), categorical_names
+
+def load_glove():
+  print("Loading Glove Model")
+  with open('glove.6B.300d.txt','r') as f:
+    model = {}
+    for line in f:
+      splitLine = line.split()
+      word = splitLine[0]
+      embedding = np.array([float(val) for val in splitLine[1:]])
+      model[word] = embedding
+  print("Done.",len(model)," words loaded!")
+  return model
 
 def report(predict_fn, X, y):
   predictions = predict_fn(X)
