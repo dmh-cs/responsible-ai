@@ -1,3 +1,4 @@
+import json
 import pprint
 import re
 from functools import reduce
@@ -10,7 +11,7 @@ import pandas as pd
 from ranker import Ranker
 from util import load_glove, encode_data
 
-class ResaurantRecommender(Ranker):
+class RestaurantRecommender(Ranker):
   def __init__(self, model):
     super().__init__(model)
     self.data = None
@@ -149,3 +150,16 @@ class ResaurantRecommender(Ranker):
         print(self.restaurants.loc[place_id]['name'])
         self.printer.pprint(explained_list)
         return
+
+  def record_recs(self, user_id):
+    user_dataset = self.build_dataset_for_user(user_id)
+    without_ids = user_dataset.loc[:, (user_dataset.columns != 'userID') & (user_dataset.columns != 'placeID')]
+    recommendations, recommended_indexes = self.rank_restaurants_for_user(user_dataset)
+    data = []
+    for place_id, row in zip(recommendations,
+                             without_ids.values[recommended_indexes]):
+      explanation = self.explain_prediction(row, num_features=10)
+      data.append({'restaurant': self.restaurants.loc[place_id]['name'],
+                   'explanation': explanation.as_list()})
+    with open('./cache.json', 'w+') as f:
+      json.dump(data, f)

@@ -93,3 +93,7 @@ h1 {
 .info {
   list-style-type: none;
 }
+
+.intro {
+  margin-left: 10px;
+}
