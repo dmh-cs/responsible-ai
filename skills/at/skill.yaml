@@ -1,0 +1,35 @@
+camel: 1.0.0
+name: at/ad_trust
+title: Ad Trust
+description: Ad Trust
+properties:
+      - name: model
+        type: string
+        description: model path
+        required: true
+      - name: labels
+        type: string
+        description: labels path
+        required: true
+inputs:
+  -
+    name: input
+    title: input
+    parameters:
+      - name: image
+        type: string
+        description: image url
+        required: true
+    routing:
+      all:
+        action: at/ad_trust
+        runtime: cortex/functions
+        output: output
+outputs:
+  -
+    name: output
+    title: output
+    parameters:
+      - name: predictions
+        type: object
+        description: predictions

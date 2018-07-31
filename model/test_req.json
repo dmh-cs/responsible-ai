@@ -1,0 +1,19 @@
+{
+  "instanceId": "cji53zwvh001l01mgw0ge7hv7",
+  "sessionId": "cji53zwvh001n01mgz3c6tiib",
+  "channelId": "cji53zwvh001m01mgloux4y96",
+  "typeName": "cortex/Text",
+  "timestamp": 1520003768179,
+  "datasetBindings": [],
+  "entityBindings": [],
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb2duaXRpdmVzY2FsZS5jb20iLCJhdWQiOiJjb3J0ZXgiLCJzdWIiOiJzYmFraGRhIiwidGVuYW50IjoiY2VudHVyeSIsImFjbCI6eyIuKiI6WyJSRUFEIiwiUlVOIiwiV1JJVEUiLCJERUxFVEUiXX0sImJlYXJlciI6InB1YmxpYyIsImtleSI6Im5EVVdOa1JZQk1RMFpvZ3hNNDFmMXJqRExhWHRla2ltIiwiZXhwIjoxNTMzNjU2NTY1LCJpYXQiOjE1MzI0NDY5NjV9.mLjtKVqBxWx2_f81bPvp3xnnVIYN_ppZL3z7Pcb0KpM",
+  "apiEndpoint": "https://api.cortex-dev.insights.ai",
+  "properties": {
+    "apiToken": "86b2c80b7e6c4570acc7c1dcde485c7a",
+    "model" : "resnet18-5c106cde.pth",
+    "labels" : "labels.json"
+  },
+  "payload": {
+    "image" : "http://a57.foxnews.com/images.foxnews.com/content/fox-news/auto/2017/12/13/most-powerful-cars-2017/_jcr_content/article-text/article-par-5/inline_spotlight_ima/image.img.jpg/612/344/1513199871601.jpg"
+  }
+}

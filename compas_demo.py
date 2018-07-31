@@ -1,7 +1,6 @@
 import pprint
 
 from sklearn import ensemble
-
 from compas_explainer import CompasExplainer
 
 def main():
