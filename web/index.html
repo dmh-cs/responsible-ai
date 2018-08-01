@@ -5889,18 +5889,15 @@
              ignore.push(text);
              my_ctr++;
              var exps = _.map(data[rec_ptr].explanation, function(val) {return val[0]});
-             var i;
-             for (i = 0; i < ignore.length ; i++) {
-                 while (exps.includes(ignore[i])) {
-                     if (rec_ptr < data.length - 1) {
-                         rec_ptr++;
-                         exps = _.map(data[rec_ptr].explanation, function(val) {return val[0]});
-                     } else {
-                         rec_ptr = 0;
-                         my_ctr = 1;
-                         alert('Sorry, no recommendations were made using this restricted set of features');
-                         location.reload();
-                     }
+             while (!_.isEmpty(_.intersection(ignore, exps))) {
+                 if (rec_ptr < data.length - 1) {
+                     rec_ptr++;
+                     exps = _.map(data[rec_ptr].explanation, function(val) {return val[0]});
+                 } else {
+                     rec_ptr = 0;
+                     my_ctr = 1;
+                     alert('Sorry, no recommendations were made using this restricted set of features');
+                     location.reload();
                  }
              }
              exec();
