@@ -3,7 +3,7 @@ import numpy as np
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 
-from explainer_model import train, inquire
+from ainsight.explainer_model import train, inquire
 
 class Ranker(object):
   def __init__(self, model):

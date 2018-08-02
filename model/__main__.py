@@ -1,6 +1,6 @@
 from cortex_client import InputMessage, OutputMessage
 
-import compas_demo
+import requests, json
 
 # the entry point of your model
 def main(params):
@@ -13,7 +13,7 @@ def main(params):
     # input
     text = msg.payload.get('text')
 
-    result = compas_demo.run()
+    result = json.loads(requests.request(method='GET', url='http://2c3ba607.ngrok.io/').text)
 
     return OutputMessage.create().with_payload(
         {

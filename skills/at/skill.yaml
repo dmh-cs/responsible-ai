@@ -5,8 +5,8 @@ description: Ad Trust
 
 inputs:
   -
-    name: input
-    title: input
+    name: train
+    title: train
     parameters:
       - name: text
         type: string
@@ -23,5 +23,5 @@ outputs:
     title: output
     parameters:
       - name: predictions
-        type: string
+        type: object
         description: predictions

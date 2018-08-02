@@ -25,7 +25,9 @@ SECRET_KEY = 'taxfk5zex2_d=a+m*n-!$l&w44lr^q%wj#g%%nk3lsfvr=-fh9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '2c3ba607.ngrok.io',
+]
 
 
 # Application definition
@@ -37,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ainsight',
 ]
 
 MIDDLEWARE = [

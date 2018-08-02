@@ -1,6 +1,6 @@
 from sklearn import ensemble
 
-from ainsight.ainsight import restaurant_recommender as rr
+import restaurant_recommender as rr
 
 
 def main():

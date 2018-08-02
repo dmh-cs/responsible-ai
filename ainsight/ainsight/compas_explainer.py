@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from ranker import Ranker
-from util import get_label, encode_data
+from ainsight.ranker import Ranker
+from ainsight.util import get_label, encode_data
 from sklearn.preprocessing import OneHotEncoder
 
 class CompasExplainer(Ranker):
