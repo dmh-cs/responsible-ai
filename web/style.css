@@ -67,6 +67,7 @@ h1 {
 }
 
 .ad {
+  overflow: hidden;
   float:right;
   border-left: 1px solid black;
   height: 600px;
