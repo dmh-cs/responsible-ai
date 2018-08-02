@@ -4,10 +4,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="./style.css">
     <link href="https://fonts.googleapis.com/css?family=Sunflower:300" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.js"></script>
     <script>
      /* var data = require('./data.json'); */
+     var show;
      window.onload = function () {
          var data = [
              {
@@ -5872,6 +5874,9 @@
              name.innerHTML = _.capitalize(data[rec_ptr].restaurant);
              var i;
              for (i = 0; i < data[rec_ptr].explanation.length; i++) {
+                 if (data[rec_ptr].explanation[i][0].includes('blue')) {
+                     continue;
+                 }
                  var li = document.createElement('li');
                  var textnode = document.createTextNode(' ' + _.capitalize(data[rec_ptr].explanation[i][0]));
                  var checkbox = document.createElement('input');
@@ -5903,6 +5908,11 @@
              exec();
          }
          exec();
+         show = function () {
+             document.getElementById('info').classList.remove('hidden');
+             /* document.getElementById('button').classList.add('hidden'); */
+             document.getElementById('button').remove();
+         }
      };
     </script>
     <body>
@@ -5912,7 +5922,7 @@
 		<img class="stnd  dark-version" alt="CognitiveScale" src="https://www.cognitivescale.com/wp-content/uploads/2017/10/cs-logo.svg">
 	    </a>
             <div class="title">
-                <h1>Transparent Recommendations</h1>
+                <h1>aInsights</h1>
             </div>
         </div>
         <div holder>
@@ -5939,8 +5949,9 @@
                         <p class="intro">
                             This recommendation is based on the following features
                         </p>
+                        <img src="./button.png" onclick="show()" id="button">
                         <p>
-                            <ul class="info" id="info">
+                            <ul class="info hidden" id="info">
                                 <li><input type="checkbox" checked='checked'> Ethnicity: blue</li>
                                 <li><input type="checkbox" checked='checked'> Transport: public</li>
                                 <li><input type="checkbox" checked='checked'> Marital status: married</li>

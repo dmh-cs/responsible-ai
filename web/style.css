@@ -22,6 +22,7 @@ body {
   bottom: 0;
 }
 h1 {
+  font-family: 'Playfair Display', serif !important;
   margin-bottom: 0;
   text-align: center;
   color: white;
@@ -96,4 +97,14 @@ h1 {
 
 .intro {
   margin-left: 10px;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+#button {
+  width: 200px;
+  margin: 0 auto;
+  display: block;
 }
